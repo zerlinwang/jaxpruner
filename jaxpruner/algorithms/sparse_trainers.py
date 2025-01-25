@@ -54,7 +54,7 @@ class StaticRandomSparse(base_updater.BaseUpdater):
 def _restart_using_mask(target_tree, masks):
   # Set values to zero where mask is 1.
   return jax.tree_map(
-      lambda a, m: a if m is None else a * (1 - m), target_tree, masks
+      lambda a, m: a if m is None else a * m, target_tree, masks
   )
 
 
@@ -159,7 +159,7 @@ class SET(StaticRandomSparse):
         is_leaf=lambda x: x is None
     )
     new_inner_state = restart_inner_state(
-        sparse_state.inner_state, masks_activated
+        sparse_state.inner_state, new_masks
     )
     return sparse_state._replace(masks=new_masks, inner_state=new_inner_state)
 
