@@ -146,12 +146,17 @@ class SET(StaticRandomSparse):
         self._update_masks, drop_fraction=current_drop_fraction
     )
     new_masks = jax.tree_map(
-        update_masks_fn, sparse_state.masks, drop_scores, grow_scores
+        lambda m, d, g: None if m is None else update_masks_fn(m, d, g),
+        sparse_state.masks,
+        drop_scores,
+        grow_scores,
+        is_leaf=lambda x: x is None
     )
     masks_activated = jax.tree_map(
-        lambda old_mask, new_mask: (old_mask == 0) & (new_mask == 1),
+        lambda old_mask, new_mask: None if old_mask is None else (old_mask == 0) & (new_mask == 1),
         sparse_state.masks,
         new_masks,
+        is_leaf=lambda x: x is None
     )
     new_inner_state = restart_inner_state(
         sparse_state.inner_state, masks_activated
